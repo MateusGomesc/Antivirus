@@ -9,16 +9,17 @@ import shutil
 
 def onModified(event):
     """Salvar arquivos que foram modificados"""
-    backupPath = 'C:\Users\Mateus\Documents\Projetos\Antivirus\tests\backup'
-
+    backupPath = 'C:/Users/Mateus/Documents/Projetos/Antivirus/tests/watchdog/backup/'
+    print(os.listdir(path))
     #Salva os arquivos na pasta backup
     for file in os.listdir(path):
         #Constroe arquivo e destino
-        source = path + file
-        destination = backupPath + file
+        source = os.path.join(path, file)
+        destination = os.path.join(backupPath, file)
 
         #copia arquivos
-        if os.path.isFile(source):
+        if os.path.isfile(source):
+            print('entrou')
             shutil.copy(source, destination)
             print(f'copied: {file}')
 
@@ -28,7 +29,7 @@ if __name__ == '__main__':
     user = getpass.getuser()
 
     logging.basicConfig(filemode='a', filename='dir.log',level=logging.INFO,
-                        format='%(asctime)s - %(message)s - %(process)d ' + f'- user',
+                        format='%(asctime)s - %(message)s - %(process)d ' + f'- {user}',
                         datefmt='%Y-%m-%d %H:%M:%S')
 
     #Diretório a ser monitorado
