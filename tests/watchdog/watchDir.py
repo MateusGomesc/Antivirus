@@ -1,27 +1,35 @@
 import sys
 import time
 from watchdog.observers import Observer
-from watchdog.events import LoggingEventHandler
+from watchdog.events import LoggingEventHandler, PatternMatchingEventHandler
 import logging
 import getpass
 import os
 import shutil
 
-def onModified(event):
-    """Salvar arquivos que foram modificados"""
-    backupPath = 'C:/Users/Mateus/Documents/Projetos/Antivirus/tests/watchdog/backup/'
-    print(os.listdir(path))
-    #Salva os arquivos na pasta backup
-    for file in os.listdir(path):
-        #Constroe arquivo e destino
-        source = os.path.join(path, file)
-        destination = os.path.join(backupPath, file)
 
-        #copia arquivos
-        if os.path.isfile(source):
-            print('entrou')
-            shutil.copy(source, destination)
-            print(f'copied: {file}')
+class Handler(PatternMatchingEventHandler):
+    def __init__(self) -> None:
+        PatternMatchingEventHandler.__init__(self, patterns=['*.csv', '*.txt'], ignore_directories=True, case_sensitive=False)
+
+    def on_any_event(self, event):
+        """
+            Salvar arquivos que foram modificados
+            return: void
+        """
+        
+        backupPath = 'C:/Users/Mateus/Documents/Projetos/Antivirus/tests/watchdog/backup/'
+
+        #Salva os arquivos na pasta backup
+        for file in os.listdir(path):
+            #Constroe arquivo e destino
+            source = os.path.join(path, file)
+            destination = os.path.join(backupPath, file)
+
+            #copia arquivos
+            if os.path.isfile(source):
+                shutil.copy2(source, destination)
+                print(f'copied: {file}')
 
 
 if __name__ == '__main__':
@@ -39,13 +47,15 @@ if __name__ == '__main__':
     observer = Observer()
 
     #Define Handler
-    eventHandler = LoggingEventHandler()
+    eventHandlerFunctions = Handler()
+    eventHandlerLogin = LoggingEventHandler()
 
     #Salva arquivos modificados
-    eventHandler.on_modified = onModified
+    # eventHandler.on_modified = onModified
     
     #Programa monitoramento
-    observer.schedule(eventHandler, path, recursive=True)
+    observer.schedule(eventHandlerFunctions, path, recursive=True)
+    observer.schedule(eventHandlerLogin, path, recursive=True)
 
     #inicia monitoramento
     observer.start()
