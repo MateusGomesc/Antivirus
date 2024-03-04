@@ -46,8 +46,10 @@ if __name__ == '__main__':
     #Define observer
     observer = Observer()
 
-    #Define Handler
+    #Define Handler para funções
     eventHandlerFunctions = Handler()
+
+    #Define Handler para logar
     eventHandlerLogin = LoggingEventHandler()
 
     #Salva arquivos modificados
