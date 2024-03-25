@@ -1,13 +1,14 @@
 from pathlib import Path
 from os import path
 from watchdog.observers import Observer
-from watchdog.events import PatternMatchingEventHandler, LoggingEventHandler
+from watchdog.events import FileSystemEvent, PatternMatchingEventHandler, LoggingEventHandler, RegexMatchingEventHandler
 import time
 import logging
 import re
 
-# Receive absolute path
-route = path.join(path.abspath('./resource'), "filenames.txt")
+# Receive absolute path of files
+routeBadFileNames = path.join(path.abspath('./resource'), 'filenames.txt')
+routeLogs = path.join(path.abspath('./resource'), 'dev.log')
 
 def verifyFilesExists():
     """Serch in computer if have any bad file
@@ -20,7 +21,7 @@ def verifyFilesExists():
     
     badFilesExisting = []
 
-    with open(route, "r") as file:
+    with open(routeBadFileNames, "r") as file:
         lines = file.readlines()
 
         # Verify if files exists
@@ -39,7 +40,12 @@ def verifyFilesExists():
 
 
 
-def watchBadFiles():
+def watchBadFiles(path):
+    """keep watching the events that happening
+
+    Args:
+        path (string): path will be monitored
+    """
     # Configure log
     logging.basicConfig(filemode='a', filename='resource/dev.log', level=logging.INFO, 
                     format='%(message)s %(process)d',
@@ -50,7 +56,7 @@ def watchBadFiles():
             PatternMatchingEventHandler.__init__(self)
 
         def on_any_event(self, event):
-            with open(route, "r") as file:
+            with open(routeBadFileNames, "r") as file:
                 lines = file.readlines()
 
                 for line in lines:
@@ -58,9 +64,6 @@ def watchBadFiles():
                         print('Deu ruim cumpade')
                 
                 file.close()
-
-    
-    path = 'C:/Users/Mateus'
 
     observer = Observer()
 
@@ -74,9 +77,26 @@ def watchBadFiles():
 
     try:
         while True:
+            keepsLogs()
             time.sleep(1)
     except KeyboardInterrupt:
         observer.stop()
         observer.join()
+
+def keepsLogs():
+    with open(routeLogs, "r") as fileRead:
+        while True:
+            lines = fileRead.readlines()
+            sizeOfFile = 100
+            
+            if len(lines) >= sizeOfFile:
+                del lines[-1]
+            
+            with open(routeLogs, "w") as fileWrite:
+                fileWrite.writelines(lines)
+                fileWrite.close()
+            time.sleep(1)
+        fileRead.close()
+
 
 watchBadFiles()
