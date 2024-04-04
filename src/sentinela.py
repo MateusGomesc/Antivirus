@@ -58,7 +58,7 @@ class Sentinela():
                 PatternMatchingEventHandler.__init__(self)
 
             def on_any_event(self, event):
-                with open(Sentinela.routeBadFileNames, "r") as file:
+                with open(Sentinela().routeBadFileNames, "r") as file:
                     lines = file.readlines()
                     eventPath = Path(event.src_path)
 
